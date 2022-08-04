@@ -17,6 +17,7 @@ public class control_surface
     public float drag_force;
     public float[] elevator_lf_point = new float[3];
     public float[] elevator_lf_nvec = new float[3];
+
     public float angle;
     public float min_angle;
     public float max_angle;
@@ -31,24 +32,23 @@ public class aerodynamic_surface
     public float drag_coeff;
     public float drag_force;
 
-    public Point3 lift_force_point;
+    public Vector3 lift_force_point;
 
     public Vector3 lift_force_nvec;
     public Vector3 drag_force_nvec;
 
     public List<control_surface> control_surfaces = new List<control_surface>();
 
-    public void
+    public void recalc_cf()
+    {
+
+    }
 
 }
 
 
 public class aircraft
 {
-
-    // physical parameters and constants 
-
-
 
     public float phys_time_step = 0.01f;
 
@@ -109,46 +109,6 @@ public class aircraft
     public float elevator_angle;
     public float[] elevator_max_angles = new float[2];
 
-
-    public float wing_area;
-    public float wing_aoa;
-    public float wing_slope;
-    public float wing_lc;
-    public float wing_lf;
-    public float wing_df;
-    public float wing_dc;
-    public float[] wing_lf_point = new float[3];
-    public float[] wing_lf_nvec = new float[3];
-
-    public float aileron_affected_area;
-    public float aileron_avg_chord_fraction;
-    public float aileron_lf;
-    public float aileron_df;
-    public float[] aileron_lf_point = new float[3];
-    public float[] aileron_lf_nvec = new float[3];
-    public float aileron_angle;
-    public float[] aileron_max_angles = new float[2];
-
-
-    public float ver_stab_area;
-    public float ver_stab_aoa;
-    public float ver_stab_slope;
-    public float ver_stab_lc;
-    public float ver_stab_lf;
-    public float ver_stab_dc;
-    public float ver_stab_df;
-    public float[] ver_stab_lf_point = new float[3];
-    public float[] ver_stab_lf_nvec = new float[3];
-
-    public float rudder_affected_area;
-    public float rudder_avg_chord_fraction;
-    public float rudder_lf;
-    public float rudder_df;
-    public float[] rudder_lf_point = new float[3];
-    public float[] rudder_lf_nvec = new float[3];
-    public float rudder_angle;
-    public float[] rudder_max_angles = new float[2];
-
     // functions
 
     // X - roll, parallel to aircraft central axis, directed forward; Y - pitch, horizontal, perpendicular to aircraft central axis, directed left; Z - rudder, vertical, directed up; 
@@ -198,15 +158,7 @@ public class aircraft
         ffw = zfw + fuel_weight_max;
     }
 
-    public void recalc_air_parameters()
-    {
-        air_temperature = air_temperature_asl - (Lb * altitude);  
-        air_pressure = air_pressure_asl * MathF.Pow(((air_temperature_asl + altitude * Lb) / air_temperature_asl), (-g * M / (R * Lb)));
-        air_density = air_pressure * M / (R * air_temperature);
 
-        //saturation_vapor_pressure = 6.108f * MathF.Pow(10, ((7.5f * air_temperature) / (air_temperature - 237.3f)));
-        //water_vapor_pressure = saturation_vapor_pressure * air_humidity;
-    }
 
     public void recalc_surfaces()
     {
