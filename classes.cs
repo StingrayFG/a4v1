@@ -5,6 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
+public class Point3
+{
+    public float X;
+    public float Y;
+    public float Z;
+
+
+
+}
 
 public class Phys
 {
