@@ -7,19 +7,19 @@ using System.Numerics;
 
 public class wing_cross_section
 {
+    public wing_functions functions;
+
     public float aoa_base;
     public float aoa_no_sideslip;
     public float aoa_true;
-
-    public float lift_coeff;
-    public float drag_coeff;
 
     public float chord_len;
     public float span_half_fraction;
 
     public Point3 ad_center;
 
-    public wing_functions functions;
+    public float lift_coeff;
+    public float drag_coeff;
 }
 
 public class control_surface
@@ -27,37 +27,40 @@ public class control_surface
     public float affected_area;
 
     public float chord_fraction_avg;
-    public float chord_len;
+    public float chord_len_avg;
     public float span_half_fraction;
 
     public float angle;
     public float min_angle;
     public float max_angle;
 
-    public Point3 force_app_point;
+    public Point3 forces_app_point;
 
     public Vector3 lift_force_nvec;
     public Vector3 drag_force_nvec;
-
-    
+    public Vector3 forces_sum_nvec;
 }
 
 public class aerodynamic_surface
 {
+    public wing_cross_section root = new wing_cross_section();
+    public wing_cross_section tip = new wing_cross_section();
+
     public float area;
     public float span_half;
 
-    public wing_cross_section root = new wing_cross_section();
-    public wing_cross_section tip = new wing_cross_section(); 
-
-    public Vector3 ad_center_line_nvec;
     public float ad_center_line_slope;
+    public Vector3 ad_center_line_nvec; // used for determination of on which side of aircraft surface is
+    
 
+    public float lift_force;
+    public float drag_force;
 
-    public Point3 force_app_point;
+    public Point3 forces_app_point;
 
-    public Vector3 lift_force_nvec;
+    public Vector3 lift_force_nvec; 
     public Vector3 drag_force_nvec;
+    public Vector3 forces_sum_nvec;
 
     public List<control_surface> control_surfaces = new List<control_surface>();
 
@@ -76,6 +79,24 @@ public class aerodynamic_surface
 
         tip.lift_coeff = tip.functions.lc_get(tip.aoa_true);
         tip.drag_coeff = tip.functions.dc_get(root.aoa_true);
+    }
+
+    public void recalc_forces(Vector3 velocity_nvec, float air_density, float speed)
+    {
+        lift_force = ((root.lift_coeff + tip.lift_coeff) / 2) * air_density * speed * speed * area / 2;
+        drag_force = ((root.drag_coeff + tip.drag_coeff) / 2) * air_density * speed * speed * area / 2;
+
+        float forces_coeff = (tip.chord_len * tip.lift_coeff / (root.chord_len * root.lift_coeff + tip.chord_len * tip.lift_coeff));
+
+        forces_app_point.X = root.ad_center.X + (root.ad_center.X + tip.ad_center.X) * forces_coeff;
+        forces_app_point.Y = root.ad_center.Y + (root.ad_center.Y + tip.ad_center.Y) * forces_coeff;
+        forces_app_point.Z = root.ad_center.Z + (root.ad_center.Z + tip.ad_center.Z) * forces_coeff;
+
+        drag_force_nvec.X = -velocity_nvec.X;
+        drag_force_nvec.Y = -velocity_nvec.Y;
+        drag_force_nvec.Z = -velocity_nvec.Z;
+
+
     }
 
 
