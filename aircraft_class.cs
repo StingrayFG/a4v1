@@ -68,10 +68,10 @@ public class aerodynamic_surface
     {
         if(ad_center_line_nvec.Y < 0) { course_deviation *= -1; } // if aerodynamic surface is on the left half of the aircraft, course deviation is inverted
 
-        root.aoa_no_sideslip = root.aoa_base + aircraft_aoa + (MathF.Atan((span_half * root.span_half_fraction * roll * 180 / MathF.PI) / speed) * 180 / MathF.PI);
+        root.aoa_no_sideslip = root.aoa_base + aircraft_aoa + (MathF.Atan((span_half * root.span_half_fraction * roll / 180 * MathF.PI) / speed) * 180 / MathF.PI);
         root.aoa_true = root.aoa_no_sideslip * MathF.Cos(course_deviation / 180 * MathF.PI) + ad_center_line_slope * MathF.Sin(course_deviation / 180 * MathF.PI);
 
-        tip.aoa_no_sideslip = tip.aoa_base + aircraft_aoa + (MathF.Atan((span_half * tip.span_half_fraction * roll * 180 / MathF.PI) / speed) * 180 / MathF.PI);
+        tip.aoa_no_sideslip = tip.aoa_base + aircraft_aoa + (MathF.Atan((span_half * tip.span_half_fraction * roll / 180 * MathF.PI) / speed) * 180 / MathF.PI);
         tip.aoa_true = tip.aoa_no_sideslip * MathF.Cos(course_deviation / 180 * MathF.PI) + ad_center_line_slope * MathF.Sin(course_deviation / 180 * MathF.PI);
 
         root.lift_coeff = root.functions.lc_get(root.aoa_true);
@@ -86,15 +86,56 @@ public class aerodynamic_surface
         lift_force = ((root.lift_coeff + tip.lift_coeff) / 2) * air_density * speed * speed * area / 2;
         drag_force = ((root.drag_coeff + tip.drag_coeff) / 2) * air_density * speed * speed * area / 2;
 
-        float forces_coeff = (tip.chord_len * tip.lift_coeff / (root.chord_len * root.lift_coeff + tip.chord_len * tip.lift_coeff));
+        Console.WriteLine("1, average of root and tip coeffs");
+        Console.WriteLine((root.lift_coeff + tip.lift_coeff) / 2);
 
-        forces_app_point.X = root.ad_center.X + (root.ad_center.X + tip.ad_center.X) * forces_coeff;
-        forces_app_point.Y = root.ad_center.Y + (root.ad_center.Y + tip.ad_center.Y) * forces_coeff;
-        forces_app_point.Z = root.ad_center.Z + (root.ad_center.Z + tip.ad_center.Z) * forces_coeff;
+        Console.WriteLine("2, average of root and tip including chords lens");
+        Console.WriteLine((root.lift_coeff * root.chord_len + tip.lift_coeff * tip.chord_len) / (root.chord_len + tip.chord_len));
 
-        drag_force_nvec.X = -velocity_nvec.X;
-        drag_force_nvec.Y = -velocity_nvec.Y;
-        drag_force_nvec.Z = -velocity_nvec.Z;
+
+        Console.WriteLine("3");
+        float lf_res = 0;
+        float chords_sum = 0;
+
+        List<wing_cross_section> lst = new List<wing_cross_section>();
+
+        for(int i = 0; i < 6; i++)
+        {
+
+            wing_cross_section w = new wing_cross_section();
+            w.chord_len = root.chord_len - ((root.chord_len - tip.chord_len) * ((float)i / 5));
+            w.aoa_true = root.aoa_true - ((root.aoa_true - tip.aoa_true) * ((float)i / 5));
+            w.lift_coeff = root.functions.lc_get(w.aoa_true) * ((5 - (float)i) / 5) + tip.functions.lc_get(w.aoa_true) * ((float)i / 5);
+
+            lf_res += w.lift_coeff / 6;
+            chords_sum += w.chord_len;
+            lst.Add(w);
+            
+        }
+
+        
+        Console.WriteLine(lf_res);
+        lf_res = 0;
+
+
+        Console.WriteLine(4);
+        for (int i = 0; i < 6; i++)
+        {
+            lf_res += lst[i].lift_coeff * (lst[i].chord_len / chords_sum);
+        }
+
+        Console.WriteLine(lf_res);
+
+
+        //float forces_coeff = (tip.chord_len * tip.lift_coeff / (root.chord_len * root.lift_coeff + tip.chord_len * tip.lift_coeff));
+
+        //forces_app_point.X = root.ad_center.X + (root.ad_center.X + tip.ad_center.X) * forces_coeff;
+        //forces_app_point.Y = root.ad_center.Y + (root.ad_center.Y + tip.ad_center.Y) * forces_coeff;
+        //forces_app_point.Z = root.ad_center.Z + (root.ad_center.Z + tip.ad_center.Z) * forces_coeff;
+
+        //drag_force_nvec.X = -velocity_nvec.X;
+        //drag_force_nvec.Y = -velocity_nvec.Y;
+        //drag_force_nvec.Z = -velocity_nvec.Z;
 
 
     }
@@ -107,12 +148,26 @@ class Program
 {
     static void Main(string[] args)
     {
-        //aerodynamic_surface ad = new aerodynamic_surface();
-        //ad.ad_center_line_slope = 5;
-        //ad.root = new wing_cross_section();
-        //ad.tip = new wing_cross_section();
-        //ad.root.aoa_base = 5;
-        //ad.tip.aoa_base = 5;
+        aerodynamic_surface ad = new aerodynamic_surface();
+        ad.ad_center_line_slope = 5;
+        ad.span_half = 4;
+
+        ad.root = new wing_cross_section();
+        ad.root.aoa_base = 5;
+        ad.root.chord_len = 4.56f;
+        ad.root.span_half_fraction = 0;
+
+        ad.tip = new wing_cross_section();
+        ad.tip.aoa_base = 10;
+        ad.tip.chord_len = 0.4f;
+        ad.tip.span_half_fraction = 1;
+
+        ad.root.functions = new lc_dc_stock();
+        ad.tip.functions = new lc_dc_stock();
+
+
+        ad.recalc_cross_sections(5, 10, 70, 100);
+        ad.recalc_forces(new Vector3(1, 1, 1), 0.001f, 100);
 
         ////Console.WriteLine(ad.recalc_cross_sections(5, 15));
 
