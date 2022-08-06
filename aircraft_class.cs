@@ -127,6 +127,32 @@ public class aerodynamic_surface
         Console.WriteLine(lf_res);
 
 
+        lf_res = 0;
+        chords_sum = 0;
+
+        List<wing_cross_section> lstt = new List<wing_cross_section>();
+
+        for (int i = 0; i < 5; i++)
+        {
+
+            wing_cross_section w = new wing_cross_section();
+            w.chord_len = root.chord_len - ((root.chord_len - tip.chord_len) * (((float)i+0.5f) / 5));
+            w.aoa_true = root.aoa_true - ((root.aoa_true - tip.aoa_true) * (((float)i+0.5f) / 5));
+            w.lift_coeff = root.functions.lc_get(w.aoa_true) * (((4.5f - (float)i)) / 5) + tip.functions.lc_get(w.aoa_true) * (((float)i+0.5f) / 5);
+
+            chords_sum += w.chord_len;
+            lstt.Add(w);
+
+        }
+
+        Console.WriteLine(5);
+        for (int i = 0; i < 5; i++)
+        {
+            lf_res += lstt[i].lift_coeff * (lstt[i].chord_len / chords_sum);
+        }
+
+        Console.WriteLine(lf_res);
+
         //float forces_coeff = (tip.chord_len * tip.lift_coeff / (root.chord_len * root.lift_coeff + tip.chord_len * tip.lift_coeff));
 
         //forces_app_point.X = root.ad_center.X + (root.ad_center.X + tip.ad_center.X) * forces_coeff;
