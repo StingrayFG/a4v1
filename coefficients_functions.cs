@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public interface wing_functions
+public interface coefficients_functions
 {
     float lc_get(float aoa_true);
     float dc_get(float aoa_true);
 }
 
 
-public class lc_dc_stock: wing_functions
+public class lc_dc_stock: coefficients_functions
 {
     public float lc_get(float aoa_true)
     {
