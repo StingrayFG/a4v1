@@ -3,22 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Numerics;
-
-public class Point3
-{
-    public float X;
-    public float Y;
-    public float Z;
-
-    public Point3(float X, float Y, float Z)
-    {
-        this.X = X;
-        this.Y = Y;
-        this.Z = Z;
-    }
-
-}
 
 public class Phys
 {
@@ -53,6 +37,4 @@ public class environment
         //saturation_vapor_pressure = 6.108f * MathF.Pow(10, ((7.5f * air_temperature) / (air_temperature - 237.3f)));
         //water_vapor_pressure = saturation_vapor_pressure * air_humidity;
     }
-
-
 }
