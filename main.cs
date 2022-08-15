@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
+
+
 
 class Program
 {
@@ -28,10 +31,21 @@ class Program
         ac_new.surfaces.Add(ad);
 
         ad.calc_initial();
-        ad.recalc_main(ac_new, env_new);
-        ad.calc_lift_force_nvec();
 
-        Console.WriteLine(ad.lift_force_nvec.Length());
+        float rotationX = 30;
+        float rotationY = 90;
+        float rotationZ = 45;
+
+        Vector3 ac_axis_local_nvec = new Vector3(
+            MathF.Cos(rotationZ / 180 * MathF.PI) * MathF.Cos(rotationY / 180 * MathF.PI),
+            MathF.Sin(rotationZ / 180 * MathF.PI) * MathF.Cos(rotationY / 180 * MathF.PI),
+            MathF.Sin(rotationY / 180 * MathF.PI));
+
+        Console.WriteLine(ac_axis_local_nvec.X);
+        Console.WriteLine(ac_axis_local_nvec.Y);
+        Console.WriteLine(ac_axis_local_nvec.Z);
+        Console.WriteLine(ac_axis_local_nvec.Length());
+
 
         //ad.sections_main[1].functions = new lc_dc_stock();
         //ad.sections_main[2].functions = new lc_dc_stock();

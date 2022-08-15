@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Phys
+public class physics
 {
     public const float g = 9.81f; // Gravitational acceleration
     public const float R = 8.314f; // Universal gas constant
@@ -15,6 +15,8 @@ public class Phys
 
 public class environment
 {
+    public float physics_step = 0.01f;
+
     public float air_pressure_asl = 103250;
     public float air_temperature_asl = 288;
 
@@ -30,9 +32,9 @@ public class environment
 
     public void recalc(float alt)
     {
-        air_temperature = air_temperature_asl - (Phys.Lb * alt);
-        air_pressure = air_pressure_asl * MathF.Pow(((air_temperature_asl + alt * Phys.Lb) / air_temperature_asl), (-Phys.g * Phys.M / (Phys.R * Phys.Lb)));
-        air_density = air_pressure * Phys.M / (Phys.R * air_temperature);
+        air_temperature = air_temperature_asl - (physics.Lb * alt);
+        air_pressure = air_pressure_asl * MathF.Pow(((air_temperature_asl + alt * physics.Lb) / air_temperature_asl), (-physics.g * physics.M / (physics.R * physics.Lb)));
+        air_density = air_pressure * physics.M / (physics.R * air_temperature);
 
         //saturation_vapor_pressure = 6.108f * MathF.Pow(10, ((7.5f * air_temperature) / (air_temperature - 237.3f)));
         //water_vapor_pressure = saturation_vapor_pressure * air_humidity;
