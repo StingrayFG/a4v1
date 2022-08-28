@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
+
+
 public class actions_class
 {
     public float[] values = new float[6];
@@ -52,6 +54,11 @@ public class ad_surface_section
         lift_coeff = (root_functions.lc_get(aoa_true) * length_fraction) + (tip_functions.lc_get(aoa_true) * (1 - length_fraction));
     }
 
+    public void lc_get_for_extension(float coeff)
+    {
+
+    }
+
     public void dc_get()
     {
         drag_coeff = (root_functions.dc_get(aoa_true) * length_fraction) + (tip_functions.dc_get(aoa_true) * (1 - length_fraction));
@@ -62,14 +69,11 @@ public class ad_surface_section
 
 public class surface
 {
+    public ad_surface_section avg_section;
+
     public float area;
 
-    public float chord_len_avg;
-
     public float root_offset;
-
-    public float lift_coeff;
-    public float drag_coeff;
 
     public float lift_force;
     public float drag_force;
@@ -82,7 +86,21 @@ public class surface
     public Vector3 lift_force_nvec;
     public Vector3 drag_force_nvec;
     public Vector3 forces_sum_nvec;
+
+    public virtual void recalc_coefficients() 
+    {
+        avg_section.lc_get();
+        avg_section.dc_get();
+    }
+
+    public void recalc_surface_forces(aircraft ac, environment env) // calculates forces coefficients for given surface
+    {
+        lift_force = avg_section.lift_coeff * env.air_density * ac.speed * ac.speed * area / 2;
+        drag_force = avg_section.drag_coeff * env.air_density * ac.speed * ac.speed * area / 2;
+    }
 }
+
+
 
 public class control_surface : surface // 'forces_sum_nvec' is a vector of additional force, not a total force applied to aerodynamic surface, 'area' of control surface is area affected by coefficients changing.
 {
@@ -104,14 +122,7 @@ public class control_surface : surface // 'forces_sum_nvec' is a vector of addit
 
     public int[] sections_nums = new int[2];
 
-    public virtual void set_position(aircraft ac, environment env, ref actions_class actns) { }
-
-    public virtual void recalc_coefficients() { }
-}
-
-public class plain_control_surface: control_surface
-{
-    public override void set_position(aircraft ac, environment env, ref actions_class actns)
+    public virtual void set_position(aircraft ac, environment env, ref actions_class actns)
     {
         if (actns.values[action_num] > 0)
         {
@@ -128,7 +139,7 @@ public class plain_control_surface: control_surface
                 angle -= rotation_speed * env.physics_step;
             }
         }
-        else if(actns.values[action_num] < 0)
+        else if (actns.values[action_num] < 0)
         {
             if (MathF.Abs(actns.values[action_num] * min_angle - angle) < rotation_speed * env.physics_step)
             {
@@ -145,21 +156,89 @@ public class plain_control_surface: control_surface
         }
     }
 
+    public virtual void recalc_forces_app_point() { }
+}
+
+public class plain_control_surface: control_surface
+{
+    public override void set_position(aircraft ac, environment env, ref actions_class actns)
+    {
+        if (MathF.Abs(actns.values[action_num] * min_angle - angle) > rotation_speed * env.physics_step)
+        {
+            if (actns.values[action_num] > 0)
+            {
+                if (actns.values[action_num] * max_angle > angle)
+                {
+                    angle += rotation_speed * env.physics_step;
+                }
+                else if (actns.values[action_num] * max_angle < angle)
+                {
+                    angle -= rotation_speed * env.physics_step;
+                }
+            }
+            else if (actns.values[action_num] < 0)
+            {
+                if (actns.values[action_num] * min_angle > angle)
+                {
+                    angle += rotation_speed * env.physics_step;
+                }
+                else if (actns.values[action_num] * min_angle < angle)
+                {
+                    angle -= rotation_speed * env.physics_step;
+                }
+            }
+
+            if (MathF.Abs(actns.values[action_num] * min_angle - angle) < rotation_speed * env.physics_step)
+            {
+                angle = actns.values[action_num] * min_angle;
+            }
+        }    
+    }
+
     public override void recalc_coefficients()
     {
-        lift_coeff = MathF.Sqrt(length_of_surf / chord_len_avg) * lift_coeff * MathF.Sin(angle / 180 * MathF.PI);
+        avg_section.lift_coeff = MathF.Sqrt(length_of_surf / avg_section.chord_len) * avg_section.lift_coeff * MathF.Sin(angle / 180 * MathF.PI);
         // drag coefficient calculation here...
     }
 }
 
 public class split_control_surface: control_surface
 {
+    public override void recalc_coefficients()
+    {
+        avg_section.lift_coeff = MathF.Sqrt(length_of_surf / avg_section.chord_len) * avg_section.lift_coeff * MathF.Sin(angle / 180 * MathF.PI);
+        // drag coefficient calculation here...
+    }
 
 }
 
 public class slat_control_surface : control_surface
 {
+    public override void recalc_coefficients()
+    {
+        avg_section.lift_coeff = 0;
+        // drag coefficient calculation here...
+    }
 
+    public override void set_position(aircraft ac, environment env, ref actions_class actns)
+    {
+        if (MathF.Abs(actns.values[action_num] - extension) > extension_speed * env.physics_step)
+        {
+            if (actns.values[action_num] > extension)
+            {
+                angle += rotation_speed * env.physics_step;
+            }
+            else if (actns.values[action_num] < extension)
+            {
+                angle -= rotation_speed * env.physics_step;
+            }
+
+            if (MathF.Abs(actns.values[action_num] - extension) < extension_speed * env.physics_step)
+            {
+                angle = actns.values[action_num] * max_angle;
+            }
+        }
+    }
 }
 
 
@@ -285,7 +364,7 @@ public class aerodynamic_surface : surface
         }
     }
 
-    public void recalc_surface_coefficients(int[] sections_nums, surface surf) // calculates average coefficients, chords lengths and forces application point for given sections of aerodynamic or control surface
+    public void recalc_avg_section(int[] sections_nums, surface surf) // calculates average coefficients, chords lengths and forces application point for given sections of aerodynamic or control surface
     {
         float chords_sum = 0;
 
@@ -311,7 +390,7 @@ public class aerodynamic_surface : surface
             float coeff = sections_all[k].chord_len / chords_sum;
             lc_res += sections_all[k].lift_coeff * coeff;
             dc_res += sections_all[k].drag_coeff * coeff;
-            aoa_res += sections_all[k].aoa_base * coeff;
+            aoa_res += sections_all[k].aoa_true * coeff;
 
             surf.forces_app_point.X += sections_all[k].ad_center.X * coeff;
             surf.forces_app_point.Y += sections_all[k].ad_center.Y * coeff;
@@ -321,17 +400,12 @@ public class aerodynamic_surface : surface
             surf.chord_center_point.Y += sections_all[k].chord_center.Y * coeff;
             surf.chord_center_point.Z += sections_all[k].chord_center.Z * coeff;
 
-            surf.chord_len_avg += sections_all[k].chord_len * coeff;
+            surf.avg_section.chord_len += sections_all[k].chord_len * coeff;
         }
 
-        surf.lift_coeff = lc_res;
-        surf.drag_coeff = dc_res;
-        surf.aoa_avg = aoa_res;
-    }
-
-    public void recalc_surface_forces(aircraft ac, environment env, surface surf) // calculates forces coefficients for given surface
-    {
-        surf.lift_force = surf.lift_coeff * env.air_density * ac.speed * ac.speed * surf.area / 2;
+        surf.avg_section.lift_coeff = lc_res;
+        surf.avg_section.drag_coeff = dc_res;
+        surf.avg_section.aoa_true = aoa_res;
     }
 
 
@@ -340,21 +414,21 @@ public class aerodynamic_surface : surface
     {
         recalc_sections_all_coefficients(ac);
 
-        recalc_surface_coefficients(new int[2] { 0, (sections_all.Count - 1) }, this);
+        recalc_avg_section(new int[2] { 0, (sections_all.Count - 1) }, this);
         recalc_lift_force_nvec(this);
 
-        recalc_surface_forces(ac, env, this);
+        recalc_surface_forces(ac, env);
         drag_force_nvec = Vector3.Negate(ac.velocity_local_nvec);
 
         foreach (control_surface c_surf in control_surfaces)
         {
-            recalc_surface_coefficients(c_surf.sections_nums, c_surf);
+            recalc_avg_section(c_surf.sections_nums, c_surf);
             recalc_lift_force_nvec(c_surf);
 
             c_surf.set_position(ac, env, ref actns);
             c_surf.recalc_coefficients();
 
-            recalc_surface_forces(ac, env, c_surf);
+            c_surf.recalc_surface_forces(ac, env);
             c_surf.drag_force_nvec = Vector3.Negate(ac.velocity_local_nvec);
         }
 

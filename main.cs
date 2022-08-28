@@ -32,19 +32,19 @@ class Program
 
         ad.calc_initial();
 
-        float rotationX = 30;
-        float rotationY = 90;
-        float rotationZ = 45;
+        //float rotationX = 30;
+        //float rotationY = 90;
+        //float rotationZ = 45;
 
-        Vector3 ac_axis_local_nvec = new Vector3(
-            MathF.Cos(rotationZ / 180 * MathF.PI) * MathF.Cos(rotationY / 180 * MathF.PI),
-            MathF.Sin(rotationZ / 180 * MathF.PI) * MathF.Cos(rotationY / 180 * MathF.PI),
-            MathF.Sin(rotationY / 180 * MathF.PI));
+        //Vector3 ac_axis_local_nvec = new Vector3(
+        //    MathF.Cos(rotationZ / 180 * MathF.PI) * MathF.Cos(rotationY / 180 * MathF.PI),
+        //    MathF.Sin(rotationZ / 180 * MathF.PI) * MathF.Cos(rotationY / 180 * MathF.PI),
+        //    MathF.Sin(rotationY / 180 * MathF.PI));
 
-        Console.WriteLine(ac_axis_local_nvec.X);
-        Console.WriteLine(ac_axis_local_nvec.Y);
-        Console.WriteLine(ac_axis_local_nvec.Z);
-        Console.WriteLine(ac_axis_local_nvec.Length());
+        //Console.WriteLine(ac_axis_local_nvec.X);
+        //Console.WriteLine(ac_axis_local_nvec.Y);
+        //Console.WriteLine(ac_axis_local_nvec.Z);
+        //Console.WriteLine(ac_axis_local_nvec.Length());
 
 
         //ad.sections_main[1].functions = new lc_dc_stock();
