@@ -152,11 +152,16 @@ public class aircraft
         speed = velocity_local_vec.Length();
         velocity_local_nvec = velocity_local_vec / speed;
 
-        velocity_global_nvec.X = MathF.Cos(MathF.Asin(ac_axis_global_nvec.Z / 180 * MathF.PI) + MathF.Asin(velocity_local_nvec.Z / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Z / 180 * MathF.PI)) * 
-            MathF.Cos(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI)); ;
-        velocity_global_nvec.Y = MathF.Sin(MathF.Asin(ac_axis_global_nvec.Z / 180 * MathF.PI) + MathF.Asin(velocity_local_nvec.Z / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Z / 180 * MathF.PI)) * 
-            MathF.Cos(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI)); ;
-        velocity_global_nvec.Z = MathF.Sin(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI));
+        //velocity_global_nvec.X = MathF.Cos(MathF.Asin(ac_axis_global_nvec.Z / 180 * MathF.PI) + MathF.Asin(velocity_local_nvec.Z / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Z / 180 * MathF.PI)) * 
+        //    MathF.Cos(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI)); ;
+        //velocity_global_nvec.Y = MathF.Sin(MathF.Asin(ac_axis_global_nvec.Z / 180 * MathF.PI) + MathF.Asin(velocity_local_nvec.Z / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Z / 180 * MathF.PI)) * 
+        //    MathF.Cos(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI)); ;
+        //velocity_global_nvec.Z = MathF.Sin(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI));
+
+        velocity_global_nvec.X = MathF.Acos(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1))) *
+        ((MathF.Round((rotation.Z + (MathF.Cos(velocity_local_nvec.X / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)) - 180) / 360) * -2) + 1);
+        velocity_global_nvec.Y = MathF.Asin(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)));
+        velocity_global_nvec.Z = rotation.Y + MathF.Asin(velocity_local_nvec.Z);
 
         velocity_global_vec = velocity_global_nvec * speed;
 

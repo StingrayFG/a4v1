@@ -9,7 +9,27 @@ using System.Numerics;
 
 public class actions_class
 {
-    public float[] values = new float[6];
+    public Dictionary<string, float> values = new Dictionary<string, float>()
+    {
+        {"none", 0f },
+        {"roll", 0f },
+        {"pitch", 0f },
+        {"yaw", 0f },
+        {"flaps", 0f },
+        {"slats", 0f },
+        {"airbrake", 0f }
+    };
+
+    public Dictionary<string, float> true_angles = new Dictionary<string, float>()
+    {
+        {"none", 0f },
+        {"roll", 0f },
+        {"pitch", 0f },
+        {"yaw", 0f },
+        {"flaps", 0f },
+        {"slats", 0f },
+        {"airbrake", 0f }
+    };
 }
 
 public class ad_surface_section
@@ -18,6 +38,7 @@ public class ad_surface_section
     public coefficients_function tip_functions;
 
     public float aoa_base;
+    public float aoa_rotated;
     public float aoa_no_sideslip;
     public float aoa_true;
 
@@ -35,6 +56,8 @@ public class ad_surface_section
     public ad_surface_section(float aoa_base, float chord_len, float length_fraction, Point3 ad_center, Point3 chord_center)
     {
         this.aoa_base = aoa_base;
+        aoa_rotated = aoa_base;
+
         this.chord_len = chord_len;
         this.length_fraction = length_fraction;
         this.ad_center = ad_center;
@@ -69,6 +92,7 @@ public class ad_surface_section
 
 public class surface
 {
+
     public ad_surface_section avg_section;
 
     public float area;
@@ -102,95 +126,139 @@ public class surface
 
 
 
-public class control_surface : surface // 'forces_sum_nvec' is a vector of additional force, not a total force applied to aerodynamic surface, 'area' of control surface is area affected by coefficients changing.
+public interface moving_object
 {
-    public control_surface_functions c_surf_func;
+    public string action_key { get => action_key; set => action_key = value; }
 
-    public int action_num;
+    public virtual void set_position(aircraft ac, environment env, ref actions_class actns) { }
+}
+
+public interface rotation_object: moving_object
+{
+
+    public virtual float angle { get => angle; set => angle = value; }
+    public virtual float min_angle { get => angle; set => angle = value; }
+    public virtual float max_angle { get => angle; set => angle = value; }
+    public virtual float rotation_speed { get => angle; set => angle = value; }
+
+    new public void set_position(aircraft ac, environment env, ref actions_class actns) 
+    {
+        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * env.physics_step)
+        {
+            if (actns.values[action_key] > 0)
+            {
+                if (actns.values[action_key] * max_angle > angle)
+                {
+                    angle += rotation_speed * env.physics_step;
+                }
+                else if (actns.values[action_key] * max_angle < angle)
+                {
+                    angle -= rotation_speed * env.physics_step;
+                }
+            }
+            else if (actns.values[action_key] < 0)
+            {
+                if (actns.values[action_key] * min_angle > angle)
+                {
+                    angle += rotation_speed * env.physics_step;
+                }
+                else if (actns.values[action_key] * min_angle < angle)
+                {
+                    angle -= rotation_speed * env.physics_step;
+                }
+            }
+
+            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * env.physics_step)
+            {
+                angle = actns.values[action_key] * min_angle;
+            }
+        }
+    }
+}
+
+public interface extension_object: moving_object
+{
+
+    public virtual float extension { get => extension; set => extension  = value; }
+    public virtual float min_extension { get => min_extension; set => min_extension = value; }
+    public virtual float max_extension { get => max_extension; set => max_extension = value; }
+    public virtual float extension_speed { get => extension_speed; set => extension_speed = value; }
+
+    new public void set_position(aircraft ac, environment env, ref actions_class actns) 
+    {
+        if (MathF.Abs(actns.values[action_key] - extension) > extension_speed * env.physics_step)
+        {
+            if (actns.values[action_key] > extension)
+            {
+                extension += extension_speed * env.physics_step;
+            }
+            else if (actns.values[action_key] < extension)
+            {
+                extension -= extension_speed * env.physics_step;
+            }
+
+            if (MathF.Abs(actns.values[action_key] - extension) < extension_speed * env.physics_step)
+            {
+                extension = actns.values[action_key] * max_extension;
+            }
+        }
+    }
+}
+
+public class control_surface : surface, moving_object // 'forces_sum_nvec' is a vector of additional force, not a total force applied to aerodynamic surface, 'area' of control surface is area affected by coefficients changing.
+{
+    public string action_key { get; set; }
+
+    public control_surface_functions c_surf_func;
 
     public float length_of_surf;
     
     public float forces_app_point_offset;
 
-    public float angle;
-    public float min_angle;
-    public float max_angle;
-    public float rotation_speed;
-
-    public float extension;
-    public float extension_speed;
-
     public int[] sections_nums = new int[2];
 
-    public virtual void set_position(aircraft ac, environment env, ref actions_class actns)
-    {
-        if (actns.values[action_num] > 0)
-        {
-            if (MathF.Abs(actns.values[action_num] * max_angle - angle) < rotation_speed * env.physics_step)
-            {
-                angle = actns.values[action_num] * max_angle;
-            }
-            if (actns.values[action_num] * max_angle > angle)
-            {
-                angle += rotation_speed * env.physics_step;
-            }
-            else if (actns.values[action_num] * max_angle < angle)
-            {
-                angle -= rotation_speed * env.physics_step;
-            }
-        }
-        else if (actns.values[action_num] < 0)
-        {
-            if (MathF.Abs(actns.values[action_num] * min_angle - angle) < rotation_speed * env.physics_step)
-            {
-                angle = actns.values[action_num] * min_angle;
-            }
-            else if (actns.values[action_num] * min_angle > angle)
-            {
-                angle += rotation_speed * env.physics_step;
-            }
-            else if (actns.values[action_num] * min_angle < angle)
-            {
-                angle -= rotation_speed * env.physics_step;
-            }
-        }
-    }
-
     public virtual void recalc_forces_app_point() { }
+
+    public void set_position(aircraft ac, environment env, ref actions_class actns) { }
 }
 
-public class plain_control_surface: control_surface
+public class plain_control_surface: control_surface, rotation_object
 {
-    public override void set_position(aircraft ac, environment env, ref actions_class actns)
+    public virtual float angle { get; set; }
+    public virtual float min_angle { get; set; }
+    public virtual float max_angle { get; set; }
+    public virtual float rotation_speed { get; set; }
+
+    new public void set_position(aircraft ac, environment env, ref actions_class actns)
     {
-        if (MathF.Abs(actns.values[action_num] * min_angle - angle) > rotation_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * env.physics_step)
         {
-            if (actns.values[action_num] > 0)
+            if (actns.values[action_key] > 0)
             {
-                if (actns.values[action_num] * max_angle > angle)
+                if (actns.values[action_key] * max_angle > angle)
                 {
                     angle += rotation_speed * env.physics_step;
                 }
-                else if (actns.values[action_num] * max_angle < angle)
+                else if (actns.values[action_key] * max_angle < angle)
                 {
                     angle -= rotation_speed * env.physics_step;
                 }
             }
-            else if (actns.values[action_num] < 0)
+            else if (actns.values[action_key] < 0)
             {
-                if (actns.values[action_num] * min_angle > angle)
+                if (actns.values[action_key] * min_angle > angle)
                 {
                     angle += rotation_speed * env.physics_step;
                 }
-                else if (actns.values[action_num] * min_angle < angle)
+                else if (actns.values[action_key] * min_angle < angle)
                 {
                     angle -= rotation_speed * env.physics_step;
                 }
             }
 
-            if (MathF.Abs(actns.values[action_num] * min_angle - angle) < rotation_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * env.physics_step)
             {
-                angle = actns.values[action_num] * min_angle;
+                angle = actns.values[action_key] * min_angle;
             }
         }    
     }
@@ -202,8 +270,15 @@ public class plain_control_surface: control_surface
     }
 }
 
-public class split_control_surface: control_surface
+public class split_control_surface: control_surface, rotation_object
 {
+
+    public float angle { get; set; }
+    public float min_angle { get; set; }
+    public float max_angle { get; set; }
+    public float rotation_speed { get; set; }
+
+
     public override void recalc_coefficients()
     {
         avg_section.lift_coeff = MathF.Sqrt(length_of_surf / avg_section.chord_len) * avg_section.lift_coeff * MathF.Sin(angle / 180 * MathF.PI);
@@ -212,37 +287,43 @@ public class split_control_surface: control_surface
 
 }
 
-public class slat_control_surface : control_surface
+public class slat_rot_control_surface: control_surface, rotation_object
 {
+
+    public float angle { get; set; }
+    public float min_angle { get; set; }
+    public float max_angle { get; set; }
+    public float rotation_speed { get; set; }
+
     public override void recalc_coefficients()
     {
         avg_section.lift_coeff = 0;
         // drag coefficient calculation here...
     }
 
-    public override void set_position(aircraft ac, environment env, ref actions_class actns)
+    new public void set_position(aircraft ac, environment env, ref actions_class actns)
     {
-        if (MathF.Abs(actns.values[action_num] - extension) > extension_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] - angle) > rotation_speed * env.physics_step)
         {
-            if (actns.values[action_num] > extension)
+            if (actns.values[action_key] > angle)
             {
                 angle += rotation_speed * env.physics_step;
             }
-            else if (actns.values[action_num] < extension)
+            else if (actns.values[action_key] < angle)
             {
                 angle -= rotation_speed * env.physics_step;
             }
 
-            if (MathF.Abs(actns.values[action_num] - extension) < extension_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] - angle) < rotation_speed * env.physics_step)
             {
-                angle = actns.values[action_num] * max_angle;
+                angle = actns.values[action_key] * max_angle;
             }
         }
     }
 }
 
 
-public class aerodynamic_surface : surface
+public class aerodynamic_surface: surface
 {
     public List<ad_surface_section> sections_main = new List<ad_surface_section>();
     public List<ad_surface_section> sections_all = new List<ad_surface_section>();
@@ -298,6 +379,7 @@ public class aerodynamic_surface : surface
                     if (sections_main[j].aoa_is_defined == true)
                     {
                         sections_main[j].aoa_base = sections_main[i - 1].aoa_base + ((sections_main[i].aoa_base - sections_main[i].aoa_base) * ((float)j + 1));
+                        sections_main[j].aoa_rotated = sections_main[j].aoa_base;
                         sections_main[j].aoa_is_defined = true;
                     }
                 }
@@ -354,7 +436,7 @@ public class aerodynamic_surface : surface
 
             for (int j = 0; i < divisions; j++)
             {
-                sections_all[sections_iterator].aoa_no_sideslip = sections_all[sections_iterator].aoa_base + ac.aircraft_aoa + (MathF.Atan(((root_offset + length * sections_all[sections_iterator].length_fraction) * ac.roll / 180 * MathF.PI) / ac.speed) * 180 / MathF.PI);
+                sections_all[sections_iterator].aoa_no_sideslip = sections_all[sections_iterator].aoa_rotated + ac.aircraft_aoa + (MathF.Atan(((root_offset + length * sections_all[sections_iterator].length_fraction) * ac.roll / 180 * MathF.PI) / ac.speed) * 180 / MathF.PI);
                 sections_all[sections_iterator].aoa_true = sections_all[sections_iterator].aoa_no_sideslip * MathF.Cos(ac.course_deviation / 180 * MathF.PI) + slope * MathF.Sin(ac.course_deviation / 180 * MathF.PI);
                 sections_all[sections_iterator].lc_get();
                 sections_all[sections_iterator].dc_get();
@@ -408,9 +490,7 @@ public class aerodynamic_surface : surface
         surf.avg_section.aoa_true = aoa_res;
     }
 
-
-
-    public void recalc_main(aircraft ac, environment env, ref actions_class actns)
+    public virtual void recalc_main(aircraft ac, environment env, ref actions_class actns)
     {
         recalc_sections_all_coefficients(ac);
 
@@ -433,7 +513,71 @@ public class aerodynamic_surface : surface
         }
 
     }
+}
 
+class ad_monosurface: aerodynamic_surface, rotation_object
+{
+    public string action_key { get; set; }
 
+    public float angle { get; set; }
+    public float min_angle { get; set; }
+    public float max_angle { get; set; }
+    public float rotation_speed { get; set; }
 
+    public void set_position(aircraft ac, environment env, actions_class actns)
+    {
+        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * env.physics_step)
+        {
+            if (actns.values[action_key] > 0)
+            {
+                if (actns.values[action_key] * max_angle > angle)
+                {
+                    angle += rotation_speed * env.physics_step;
+                }
+                else if (actns.values[action_key] * max_angle < angle)
+                {
+                    angle -= rotation_speed * env.physics_step;
+                }
+            }
+            else if (actns.values[action_key] < 0)
+            {
+                if (actns.values[action_key] * min_angle > angle)
+                {
+                    angle += rotation_speed * env.physics_step;
+                }
+                else if (actns.values[action_key] * min_angle < angle)
+                {
+                    angle -= rotation_speed * env.physics_step;
+                }
+            }
+
+            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * env.physics_step)
+            {
+                angle = actns.values[action_key] * min_angle;
+            }
+        }
+    }
+
+    public override void recalc_main(aircraft ac, environment env, ref actions_class actns) 
+    {
+        set_position(ac, env, actns);
+
+        foreach (ad_surface_section section in sections_main)
+        {
+            section.aoa_rotated = section.aoa_base + angle;
+        }
+
+        foreach (ad_surface_section section in sections_all)
+        {
+            section.aoa_rotated = section.aoa_base + angle;
+        }
+
+        recalc_sections_all_coefficients(ac);
+
+        recalc_avg_section(new int[2] { 0, (sections_all.Count - 1) }, this);
+        recalc_lift_force_nvec(this);
+
+        recalc_surface_forces(ac, env);
+        drag_force_nvec = Vector3.Negate(ac.velocity_local_nvec);
+    }
 }
