@@ -63,6 +63,38 @@ public class aircraft
 
 
 
+    public Vector3 get_rotated_vector(Vector3 vec, Vector3 axis_nvec, float angle)
+    {
+        Vector3 res;
+
+        float[,] R = new float[3, 3]
+        {
+            {
+                MathF.Cos(angle) + axis_nvec.X * axis_nvec.X * (1 - MathF.Cos(angle)),
+                axis_nvec.X * axis_nvec.Y * (1 - MathF.Cos(angle)) - axis_nvec.Z * MathF.Sin(angle),
+                axis_nvec.X * axis_nvec.Z * (1 - MathF.Cos(angle)) + axis_nvec.Y * MathF.Sin(angle)
+            },
+            {
+                axis_nvec.Y * axis_nvec.X * (1 - MathF.Cos(angle)) + axis_nvec.Z * MathF.Sin(angle),
+                MathF.Cos(angle) + axis_nvec.Y  * axis_nvec.Y * (1 - MathF.Cos(angle)),
+                axis_nvec.Y * axis_nvec.Z * (1 - MathF.Cos(angle)) - axis_nvec.X * MathF.Sin(angle)
+            },
+            {
+                axis_nvec.Z * axis_nvec.X * (1 - MathF.Cos(angle)) - axis_nvec.Y * MathF.Sin(angle),
+                axis_nvec.Z * axis_nvec.Y * (1 - MathF.Cos(angle)) + axis_nvec.X * MathF.Sin(angle),
+                MathF.Cos(angle) + axis_nvec.Z * axis_nvec.Z * (1 - MathF.Cos(angle))
+            }
+        };
+
+        res.X = R[0, 0] * vec.X + R[0, 1] * vec.Y + R[0, 2] * vec.Z;
+        res.Y = R[1, 0] * vec.X + R[1, 1] * vec.Y + R[1, 2] * vec.Z;
+        res.Z = R[2, 0] * vec.X + R[2, 1] * vec.Y + R[2, 2] * vec.Z;
+
+        return res;
+    }
+
+
+
     public void recalc_surfaces(environment env, actions_class actns)
     {
         foreach (aerodynamic_surface surf in surfaces)
@@ -119,7 +151,7 @@ public class aircraft
         rotation.Y = rotation.Y % 360;
         rotation.Z = rotation.Z % 360;
 
-        ac_axis_global_nvec.X = MathF.Cos(rotation.Z / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
+        ac_axis_global_nvec.X = MathF.Sin((rotation.Z + 90) / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
         ac_axis_global_nvec.Y = MathF.Sin(rotation.Z / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
         ac_axis_global_nvec.Z = MathF.Sin(rotation.Y / 180 * MathF.PI);
     }
@@ -158,10 +190,16 @@ public class aircraft
         //    MathF.Cos(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI)); ;
         //velocity_global_nvec.Z = MathF.Sin(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI));
 
-        velocity_global_nvec.X = MathF.Acos(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1))) *
-        ((MathF.Round((rotation.Z + (MathF.Cos(velocity_local_nvec.X / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)) - 180) / 360) * -2) + 1);
-        velocity_global_nvec.Y = MathF.Asin(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)));
-        velocity_global_nvec.Z = rotation.Y + MathF.Asin(velocity_local_nvec.Z);
+        ////velocity_global_nvec.X = MathF.Acos(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1))) *
+        ////((MathF.Round((rotation.Z + (MathF.Cos(velocity_local_nvec.X / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)) - 180) / 360) * -2) + 1);
+        ////velocity_global_nvec.Y = MathF.Asin(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)));
+        ////velocity_global_nvec.Z = rotation.Y + MathF.Asin(velocity_local_nvec.Z);
+
+        velocity_global_nvec.X = MathF.Asin(rotation.Z + MathF.Asin(velocity_local_nvec.Y) + 90) * MathF.Cos(rotation.Y);
+        velocity_global_nvec.Y = MathF.Asin(rotation.Z + MathF.Asin(velocity_local_nvec.Y)) * MathF.Cos(rotation.Y);
+        velocity_global_nvec.Z = MathF.Asin(rotation.Y + MathF.Asin(velocity_local_nvec.Z));
+
+        velocity_global_nvec = get_rotated_vector(velocity_global_nvec, ac_axis_global_nvec, rotation.X);
 
         velocity_global_vec = velocity_global_nvec * speed;
 
