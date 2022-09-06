@@ -195,9 +195,9 @@ public class aircraft
         ////velocity_global_nvec.Y = MathF.Asin(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)));
         ////velocity_global_nvec.Z = rotation.Y + MathF.Asin(velocity_local_nvec.Z);
 
-        velocity_global_nvec.X = MathF.Asin(rotation.Z + MathF.Asin(velocity_local_nvec.Y) + 90) * MathF.Cos(rotation.Y);
-        velocity_global_nvec.Y = MathF.Asin(rotation.Z + MathF.Asin(velocity_local_nvec.Y)) * MathF.Cos(rotation.Y);
-        velocity_global_nvec.Z = MathF.Asin(rotation.Y + MathF.Asin(velocity_local_nvec.Z));
+        velocity_global_nvec.X = MathF.Sin((rotation.Z + MathF.Asin(velocity_local_nvec.Y) + 90) / 180 * MathF.PI) * MathF.Cos(rotation.Y);
+        velocity_global_nvec.Y = MathF.Sin((rotation.Z + MathF.Asin(velocity_local_nvec.Y)) / 180 * MathF.PI) * MathF.Cos(rotation.Y);
+        velocity_global_nvec.Z = MathF.Sin((rotation.Y + MathF.Asin(velocity_local_nvec.Z)) / 180 * MathF.PI);
 
         velocity_global_nvec = get_rotated_vector(velocity_global_nvec, ac_axis_global_nvec, rotation.X);
 
