@@ -143,32 +143,32 @@ public interface rotation_object: moving_object
 
     new public void set_position(aircraft ac, environment env, ref actions_class actns) 
     {
-        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * physics.Ts)
         {
             if (actns.values[action_key] > 0)
             {
                 if (actns.values[action_key] * max_angle > angle)
                 {
-                    angle += rotation_speed * env.physics_step;
+                    angle += rotation_speed * physics.Ts;
                 }
                 else if (actns.values[action_key] * max_angle < angle)
                 {
-                    angle -= rotation_speed * env.physics_step;
+                    angle -= rotation_speed * physics.Ts;
                 }
             }
             else if (actns.values[action_key] < 0)
             {
                 if (actns.values[action_key] * min_angle > angle)
                 {
-                    angle += rotation_speed * env.physics_step;
+                    angle += rotation_speed * physics.Ts;
                 }
                 else if (actns.values[action_key] * min_angle < angle)
                 {
-                    angle -= rotation_speed * env.physics_step;
+                    angle -= rotation_speed * physics.Ts;
                 }
             }
 
-            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * physics.Ts)
             {
                 angle = actns.values[action_key] * min_angle;
             }
@@ -186,18 +186,18 @@ public interface extension_object: moving_object
 
     new public void set_position(aircraft ac, environment env, ref actions_class actns) 
     {
-        if (MathF.Abs(actns.values[action_key] - extension) > extension_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] - extension) > extension_speed * physics.Ts)
         {
             if (actns.values[action_key] > extension)
             {
-                extension += extension_speed * env.physics_step;
+                extension += extension_speed * physics.Ts;
             }
             else if (actns.values[action_key] < extension)
             {
-                extension -= extension_speed * env.physics_step;
+                extension -= extension_speed * physics.Ts;
             }
 
-            if (MathF.Abs(actns.values[action_key] - extension) < extension_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] - extension) < extension_speed * physics.Ts)
             {
                 extension = actns.values[action_key] * max_extension;
             }
@@ -231,32 +231,32 @@ public class plain_control_surface: control_surface, rotation_object
 
     new public void set_position(aircraft ac, environment env, ref actions_class actns)
     {
-        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * physics.Ts)
         {
             if (actns.values[action_key] > 0)
             {
                 if (actns.values[action_key] * max_angle > angle)
                 {
-                    angle += rotation_speed * env.physics_step;
+                    angle += rotation_speed * physics.Ts;
                 }
                 else if (actns.values[action_key] * max_angle < angle)
                 {
-                    angle -= rotation_speed * env.physics_step;
+                    angle -= rotation_speed * physics.Ts;
                 }
             }
             else if (actns.values[action_key] < 0)
             {
                 if (actns.values[action_key] * min_angle > angle)
                 {
-                    angle += rotation_speed * env.physics_step;
+                    angle += rotation_speed * physics.Ts;
                 }
                 else if (actns.values[action_key] * min_angle < angle)
                 {
-                    angle -= rotation_speed * env.physics_step;
+                    angle -= rotation_speed * physics.Ts;
                 }
             }
 
-            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * physics.Ts)
             {
                 angle = actns.values[action_key] * min_angle;
             }
@@ -303,18 +303,18 @@ public class slat_rot_control_surface: control_surface, rotation_object
 
     new public void set_position(aircraft ac, environment env, ref actions_class actns)
     {
-        if (MathF.Abs(actns.values[action_key] - angle) > rotation_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] - angle) > rotation_speed * physics.Ts)
         {
             if (actns.values[action_key] > angle)
             {
-                angle += rotation_speed * env.physics_step;
+                angle += rotation_speed * physics.Ts;
             }
             else if (actns.values[action_key] < angle)
             {
-                angle -= rotation_speed * env.physics_step;
+                angle -= rotation_speed * physics.Ts;
             }
 
-            if (MathF.Abs(actns.values[action_key] - angle) < rotation_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] - angle) < rotation_speed * physics.Ts)
             {
                 angle = actns.values[action_key] * max_angle;
             }
@@ -526,32 +526,32 @@ class ad_monosurface: aerodynamic_surface, rotation_object
 
     public void set_position(aircraft ac, environment env, actions_class actns)
     {
-        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * env.physics_step)
+        if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * physics.Ts)
         {
             if (actns.values[action_key] > 0)
             {
                 if (actns.values[action_key] * max_angle > angle)
                 {
-                    angle += rotation_speed * env.physics_step;
+                    angle += rotation_speed * physics.Ts;
                 }
                 else if (actns.values[action_key] * max_angle < angle)
                 {
-                    angle -= rotation_speed * env.physics_step;
+                    angle -= rotation_speed * physics.Ts;
                 }
             }
             else if (actns.values[action_key] < 0)
             {
                 if (actns.values[action_key] * min_angle > angle)
                 {
-                    angle += rotation_speed * env.physics_step;
+                    angle += rotation_speed * physics.Ts;
                 }
                 else if (actns.values[action_key] * min_angle < angle)
                 {
-                    angle -= rotation_speed * env.physics_step;
+                    angle -= rotation_speed * physics.Ts;
                 }
             }
 
-            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * env.physics_step)
+            if (MathF.Abs(actns.values[action_key] * min_angle - angle) < rotation_speed * physics.Ts)
             {
                 angle = actns.values[action_key] * min_angle;
             }

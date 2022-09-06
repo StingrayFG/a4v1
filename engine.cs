@@ -24,7 +24,7 @@ public class engine_class
         this.fuel_cons_specific = fuel_cons_specific;
     }
 
-    public void recalc_fuel_cons(environment env)
+    public void recalc_fuel_cons()
     {
         fuel_cons = thrust * fuel_cons_specific;
     }

@@ -103,7 +103,7 @@ public class aircraft
         }
     }
 
-    public void recalc_com(environment env)
+    public void recalc_com()
     {
         float coeff = fuel_weight / fuel_weight_max;
 
@@ -113,7 +113,7 @@ public class aircraft
         center_of_mass_auw.Y = center_of_mass_zfw.Y + ((center_of_mass_ffw.Y - center_of_mass_zfw.Y) * coeff);
         center_of_mass_auw.Z = center_of_mass_zfw.Z + ((center_of_mass_ffw.X - center_of_mass_zfw.Z) * coeff);
 
-        fuel_weight -= engine.fuel_cons * env.physics_step;
+        fuel_weight -= engine.fuel_cons * physics.Ts;
     }
 
     public void recalc_torque()
@@ -141,11 +141,11 @@ public class aircraft
         }
     }
 
-    public void recalc_rotation(environment env)
+    public void recalc_rotation()
     {
         angular_acceleration += torque / moment_of_inertia * 180 / MathF.PI;
-        angular_velocity += angular_acceleration * env.physics_step;
-        rotation += angular_velocity * env.physics_step;
+        angular_velocity += angular_acceleration * physics.Ts;
+        rotation += angular_velocity * physics.Ts;
 
         rotation.X = rotation.X % 360;
         rotation.Y = rotation.Y % 360;
@@ -177,10 +177,10 @@ public class aircraft
         }
     }
 
-    public void recalc_velocity_and_position(environment env)
+    public void recalc_velocity_and_position()
     {
         acceleration_local_vec += forces_local / auw;
-        velocity_local_vec += acceleration_local_vec * env.physics_step;
+        velocity_local_vec += acceleration_local_vec * physics.Ts;
         speed = velocity_local_vec.Length();
         velocity_local_nvec = velocity_local_vec / speed;
 
@@ -203,22 +203,22 @@ public class aircraft
 
         velocity_global_vec = velocity_global_nvec * speed;
 
-        position.X += velocity_global_vec.X * env.physics_step;
-        position.Y += velocity_global_vec.Y * env.physics_step;
-        position.Z += velocity_global_vec.Z * env.physics_step;
+        position.X += velocity_global_vec.X * physics.Ts;
+        position.Y += velocity_global_vec.Y * physics.Ts;
+        position.Z += velocity_global_vec.Z * physics.Ts;
     }
 
     public void recalc_main(environment env)
     {
         recalc_surfaces(env, ac_actions);
-        engine.recalc_fuel_cons(env);
-        recalc_com(env);
+        engine.recalc_fuel_cons();
+        recalc_com();
 
         recalc_torque();
-        recalc_rotation(env);
+        recalc_rotation();
 
         recalc_forces();
-        recalc_velocity_and_position(env);    
+        recalc_velocity_and_position();    
     }
 }
 

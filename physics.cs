@@ -4,18 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class physics
+public static class physics
 {
     public const float g = 9.81f; // Gravitational acceleration
     public const float R = 8.314f; // Universal gas constant
     public const float Lb = -0.0065f; // Temperature lapse rate (K/m) in ISA
     public const float M = 0.029f; // Molar mass of dry air
     public const float Mv = 0.018f; // Molar mass of water vapor
+    public const float Ts = 0.01f; // Physical timestep
 }
 
 public class environment
 {
-    public float physics_step = 0.01f;
+    public float Ts = 0.01f;
 
     public float air_pressure_asl = 103250;
     public float air_temperature_asl = 288;
