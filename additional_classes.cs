@@ -30,14 +30,32 @@ public struct Point3
         return new Vector3(X, Y, Z);
     }
 
+    public static explicit operator Vector3(Point3 p)
+    {
+        return new Vector3(p.X, p.Y, p.Z);
+    }
+
     public static Point3 operator +(Point3 p) => p;
     public static Point3 operator -(Point3 p) => new Point3(-p.X, -p.Y, -p.Z);
 
     public static Point3 operator +(Point3 p1, Point3 p2) => new Point3(p1.X + p2.X, p1.Y + p2.Y, p1.Z + p2.Z);
     public static Point3 operator -(Point3 p1, Point3 p2) => new Point3(p1.X - p2.X, p1.Y - p2.Y, p1.Z - p2.Z);
 
+
     public static Point3 operator *(Point3 p, float v) => new Point3(p.X * v, p.Y * v, p.Z * v);
     public static Point3 operator /(Point3 p, float v) => new Point3(p.X / v, p.Y / v, p.Z / v);
+
+
+    public static Point3 operator +(Point3 p, Vector3 v) => new Point3(p.X + v.X, p.Y + v.Y, p.Z + v.Z);
+    public static Point3 operator -(Point3 p, Vector3 v) => new Point3(p.X - v.X, p.Y - v.Y, p.Z - v.Z);
+    public static Point3 operator *(Point3 p, Vector3 v) => new Point3(p.X * v.X, p.Y * v.Y, p.Z * v.Z);
+    public static Point3 operator /(Point3 p, Vector3 v) => new Point3(p.X / v.X, p.Y / v.Y, p.Z / v.Z);
+
+    public static Point3 operator +(Vector3 v, Point3 p) => new Point3(p.X + v.X, p.Y + v.Y, p.Z + v.Z);
+    public static Point3 operator -(Vector3 v, Point3 p) => new Point3(p.X - v.X, p.Y - v.Y, p.Z - v.Z);
+    public static Point3 operator *(Vector3 v, Point3 p) => new Point3(p.X * v.X, p.Y * v.Y, p.Z * v.Z);
+    public static Point3 operator /(Vector3 v, Point3 p) => new Point3(v.X / p.X, v.Y / p.Y, v.Z / p.Z);
+
 }
 
 public struct PolarCrds
@@ -78,6 +96,7 @@ public struct PolarCrds
 
     public static PolarCrds operator +(PolarCrds p1, PolarCrds p2) => new PolarCrds(p1.azimuth + p2.azimuth, p1.elevation + p2.elevation);
     public static PolarCrds operator -(PolarCrds p1, PolarCrds p2)
+
     {
         return new PolarCrds(p1.azimuth - p2.azimuth, p1.elevation - p2.elevation);
     }

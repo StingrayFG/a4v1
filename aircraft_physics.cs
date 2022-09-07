@@ -109,9 +109,7 @@ public class aircraft
 
         auw = zfw + fuel_weight;
 
-        center_of_mass_auw.X = center_of_mass_zfw.X + ((center_of_mass_ffw.X - center_of_mass_zfw.X) * coeff);
-        center_of_mass_auw.Y = center_of_mass_zfw.Y + ((center_of_mass_ffw.Y - center_of_mass_zfw.Y) * coeff);
-        center_of_mass_auw.Z = center_of_mass_zfw.Z + ((center_of_mass_ffw.X - center_of_mass_zfw.Z) * coeff);
+        center_of_mass_auw = center_of_mass_zfw + ((center_of_mass_ffw - center_of_mass_zfw) * coeff);
 
         fuel_weight -= engine.fuel_cons * physics.Ts;
     }
@@ -120,9 +118,7 @@ public class aircraft
     {
         foreach (aerodynamic_surface surf in surfaces)
         {
-            torque.X += surf.lift_force * surf.lift_force_nvec.X * (surf.forces_app_point.X - center_of_mass_auw.X);
-            torque.Y += surf.lift_force * surf.lift_force_nvec.Y * (surf.forces_app_point.Y - center_of_mass_auw.Y);
-            torque.Z += surf.lift_force * surf.lift_force_nvec.Z * (surf.forces_app_point.Z - center_of_mass_auw.Z);
+            torque += (Vector3)(surf.lift_force * surf.lift_force_nvec * (surf.forces_app_point - center_of_mass_auw));
 
             torque.X += surf.drag_force * surf.drag_force_nvec.X * (surf.forces_app_point.X - center_of_mass_auw.X);
             torque.Y += surf.drag_force * surf.drag_force_nvec.Y * (surf.forces_app_point.Y - center_of_mass_auw.Y);
