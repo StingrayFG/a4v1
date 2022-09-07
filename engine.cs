@@ -8,7 +8,7 @@ using System.Numerics;
 public class engine_class
 {
     public Vector3 thrust_nvec;
-    public Point3 thrust_app_point;
+    public Vector3 thrust_app_point;
 
     public float thrust_max;
     public float thrust_min;

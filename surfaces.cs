@@ -47,13 +47,13 @@ public class ad_surface_section
     public float chord_len;
     public float length_fraction;
 
-    public Point3 ad_center;
-    public Point3 chord_center;
+    public Vector3 ad_center;
+    public Vector3 chord_center;
 
     public float lift_coeff;
     public float drag_coeff;
 
-    public ad_surface_section(float aoa_base, float chord_len, float length_fraction, Point3 ad_center, Point3 chord_center)
+    public ad_surface_section(float aoa_base, float chord_len, float length_fraction, Vector3 ad_center, Vector3 chord_center)
     {
         this.aoa_base = aoa_base;
         aoa_rotated = aoa_base;
@@ -104,8 +104,8 @@ public class surface
 
     //public float aoa_avg;
 
-    public Point3 forces_app_point;
-    public Point3 chord_center_point;
+    public Vector3 forces_app_point;
+    public Vector3 chord_center_point;
 
     public Vector3 lift_force_nvec;
     public Vector3 drag_force_nvec;
@@ -407,11 +407,11 @@ public class aerodynamic_surface: surface
                     (sections_main[i].aoa_base + ((sections_main[i + 1].aoa_base - sections_main[i].aoa_base) * ((float)j + 1) / divisions)),
                     (sections_main[i].chord_len + ((sections_main[i + 1].chord_len - sections_main[i].chord_len) * ((float)j + 1) / divisions)),
                     (sections_main[i].length_fraction + ((sections_main[i + 1].length_fraction - sections_main[i].length_fraction) * ((float)j + 1) / divisions)),
-                    new Point3(
+                    new Vector3(
                         (sections_main[i].ad_center.X + (sections_main[i + 1].ad_center.X - sections_main[i].ad_center.X) * ((float)j + 1) / divisions),
                         (sections_main[i].ad_center.Y + (sections_main[i + 1].ad_center.Y - sections_main[i].ad_center.Y) * ((float)j + 1) / divisions),
                         (sections_main[i].ad_center.Z + (sections_main[i + 1].ad_center.Z - sections_main[i].ad_center.Z) * ((float)j + 1) / divisions)),
-                    new Point3(
+                    new Vector3(
                         (sections_main[i].chord_center.X + (sections_main[i + 1].chord_center.X - sections_main[i].chord_center.X) * ((float)j + 1) / divisions),
                         (sections_main[i].chord_center.Y + (sections_main[i + 1].chord_center.Y - sections_main[i].chord_center.Y) * ((float)j + 1) / divisions),
                         (sections_main[i].chord_center.Z + (sections_main[i + 1].chord_center.Z - sections_main[i].chord_center.Z) * ((float)j + 1) / divisions))
@@ -478,13 +478,9 @@ public class aerodynamic_surface: surface
             dc_res += sections_all[k].drag_coeff * coeff;
             aoa_res += sections_all[k].aoa_true * coeff;
 
-            surf.forces_app_point.X += sections_all[k].ad_center.X * coeff;
-            surf.forces_app_point.Y += sections_all[k].ad_center.Y * coeff;
-            surf.forces_app_point.Z += sections_all[k].ad_center.Z * coeff;
+            surf.forces_app_point += sections_all[k].ad_center * coeff;
 
-            surf.chord_center_point.X += sections_all[k].chord_center.X * coeff;
-            surf.chord_center_point.Y += sections_all[k].chord_center.Y * coeff;
-            surf.chord_center_point.Z += sections_all[k].chord_center.Z * coeff;
+            surf.chord_center_point += sections_all[k].chord_center * coeff;
 
             surf.avg_section.chord_len += sections_all[k].chord_len * coeff;
         }

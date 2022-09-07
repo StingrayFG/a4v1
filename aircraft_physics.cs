@@ -31,7 +31,7 @@ public class aircraft
     public Vector3 velocity_global_vec;
     public Vector3 velocity_global_nvec;
     public float speed;
-    public Point3 position;
+    public Vector3 position;
 
     public Vector3 moment_of_inertia;
     public Vector3 torque;
@@ -48,9 +48,9 @@ public class aircraft
     public float fuel_weight;
     public float fuel_weight_max;
 
-    public Point3 center_of_mass_zfw;
-    public Point3 center_of_mass_auw;
-    public Point3 center_of_mass_ffw;
+    public Vector3 center_of_mass_zfw;
+    public Vector3 center_of_mass_auw;
+    public Vector3 center_of_mass_ffw;
 
     actions_class ac_actions = new actions_class();
 
@@ -118,21 +118,15 @@ public class aircraft
     {
         foreach (aerodynamic_surface surf in surfaces)
         {
-            torque += (Vector3)(surf.lift_force * surf.lift_force_nvec * (surf.forces_app_point - center_of_mass_auw));
+            torque += surf.lift_force * surf.lift_force_nvec * (surf.forces_app_point - center_of_mass_auw);
 
             torque.X += surf.drag_force * surf.drag_force_nvec.X * (surf.forces_app_point.X - center_of_mass_auw.X);
-            torque.Y += surf.drag_force * surf.drag_force_nvec.Y * (surf.forces_app_point.Y - center_of_mass_auw.Y);
-            torque.Z += surf.drag_force * surf.drag_force_nvec.Z * (surf.forces_app_point.Z - center_of_mass_auw.Z);
 
             foreach (control_surface c_surf in surf.control_surfaces)
             {
-                torque.X += c_surf.lift_force * c_surf.lift_force_nvec.X * (c_surf.forces_app_point.X - center_of_mass_auw.X);
-                torque.Y += c_surf.lift_force * c_surf.lift_force_nvec.Y * (c_surf.forces_app_point.Y - center_of_mass_auw.Y);
-                torque.Z += c_surf.lift_force * c_surf.lift_force_nvec.Z * (c_surf.forces_app_point.Z - center_of_mass_auw.Z);
+                torque += c_surf.lift_force * c_surf.lift_force_nvec * (c_surf.forces_app_point - center_of_mass_auw);
 
-                torque.X += c_surf.drag_force * c_surf.drag_force_nvec.X * (c_surf.forces_app_point.X - center_of_mass_auw.X);
-                torque.Y += c_surf.drag_force * c_surf.drag_force_nvec.Y * (c_surf.forces_app_point.Y - center_of_mass_auw.Y);
-                torque.Z += c_surf.drag_force * c_surf.drag_force_nvec.Z * (c_surf.forces_app_point.Z - center_of_mass_auw.Z);
+                torque += c_surf.drag_force * c_surf.drag_force_nvec * (c_surf.forces_app_point - center_of_mass_auw);
             }
         }
     }
@@ -199,9 +193,8 @@ public class aircraft
 
         velocity_global_vec = velocity_global_nvec * speed;
 
-        position.X += velocity_global_vec.X * physics.Ts;
-        position.Y += velocity_global_vec.Y * physics.Ts;
-        position.Z += velocity_global_vec.Z * physics.Ts;
+        position += velocity_global_vec * physics.Ts;
+
     }
 
     public void recalc_main(environment env)
