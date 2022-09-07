@@ -102,7 +102,7 @@ public class surface
     public float lift_force;
     public float drag_force;
 
-    public float aoa_avg;
+    //public float aoa_avg;
 
     public Point3 forces_app_point;
     public Point3 chord_center_point;
@@ -219,7 +219,7 @@ public class control_surface : surface, moving_object // 'forces_sum_nvec' is a 
 
     public virtual void recalc_forces_app_point() { }
 
-    public void set_position(aircraft ac, environment env, ref actions_class actns) { }
+    public void set_position(aircraft ac, ref actions_class actns) { }
 }
 
 public class plain_control_surface: control_surface, rotation_object
@@ -229,7 +229,7 @@ public class plain_control_surface: control_surface, rotation_object
     public virtual float max_angle { get; set; }
     public virtual float rotation_speed { get; set; }
 
-    new public void set_position(aircraft ac, environment env, ref actions_class actns)
+    new public void set_position(aircraft ac, ref actions_class actns)
     {
         if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * physics.Ts)
         {
@@ -260,7 +260,9 @@ public class plain_control_surface: control_surface, rotation_object
             {
                 angle = actns.values[action_key] * min_angle;
             }
-        }    
+        }
+
+        avg_section.aoa_rotated = avg_section.aoa_base + angle;
     }
 
     public override void recalc_coefficients()
@@ -301,7 +303,7 @@ public class slat_rot_control_surface: control_surface, rotation_object
         // drag coefficient calculation here...
     }
 
-    new public void set_position(aircraft ac, environment env, ref actions_class actns)
+    new public void set_position(aircraft ac, ref actions_class actns)
     {
         if (MathF.Abs(actns.values[action_key] - angle) > rotation_speed * physics.Ts)
         {
@@ -319,6 +321,8 @@ public class slat_rot_control_surface: control_surface, rotation_object
                 angle = actns.values[action_key] * max_angle;
             }
         }
+
+        avg_section.aoa_rotated = avg_section.aoa_base + angle;
     }
 }
 
@@ -421,9 +425,9 @@ public class aerodynamic_surface: surface
     public void recalc_lift_force_nvec(surface surf)
     {
         surf.lift_force_nvec = new Vector3(
-            MathF.Asin(aoa_avg / 180 * MathF.PI) * (one_axis_nvec.Z - 1), 
+            MathF.Asin(avg_section.aoa_rotated / 180 * MathF.PI) * (one_axis_nvec.Z - 1), 
             -MathF.Asin(slope / 180 * MathF.PI) * one_axis_nvec.Y + one_axis_nvec.Z, 
-            MathF.Sqrt(-MathF.Pow(MathF.Asin(aoa_avg / 180 * MathF.PI), 2) - MathF.Pow(MathF.Asin(slope / 180 * MathF.PI), 2) + 1));
+            MathF.Sqrt(-MathF.Pow(MathF.Asin(avg_section.aoa_rotated / 180 * MathF.PI), 2) - MathF.Pow(MathF.Asin(slope / 180 * MathF.PI), 2) + 1));
     }
 
     public void recalc_sections_all_coefficients(aircraft ac) // recalculates coefficients for each section in 'sections_all'
@@ -505,7 +509,7 @@ public class aerodynamic_surface: surface
             recalc_avg_section(c_surf.sections_nums, c_surf);
             recalc_lift_force_nvec(c_surf);
 
-            c_surf.set_position(ac, env, ref actns);
+            c_surf.set_position(ac, ref actns);
             c_surf.recalc_coefficients();
 
             c_surf.recalc_surface_forces(ac, env);
@@ -524,7 +528,7 @@ class ad_monosurface: aerodynamic_surface, rotation_object
     public float max_angle { get; set; }
     public float rotation_speed { get; set; }
 
-    public void set_position(aircraft ac, environment env, actions_class actns)
+    public void set_position(aircraft ac, actions_class actns)
     {
         if (MathF.Abs(actns.values[action_key] * min_angle - angle) > rotation_speed * physics.Ts)
         {
@@ -556,11 +560,15 @@ class ad_monosurface: aerodynamic_surface, rotation_object
                 angle = actns.values[action_key] * min_angle;
             }
         }
+
+        avg_section.aoa_rotated = avg_section.aoa_base + angle;
     }
+
+    
 
     public override void recalc_main(aircraft ac, environment env, ref actions_class actns) 
     {
-        set_position(ac, env, actns);
+        set_position(ac, actns);
 
         foreach (ad_surface_section section in sections_main)
         {
@@ -577,6 +585,7 @@ class ad_monosurface: aerodynamic_surface, rotation_object
         recalc_avg_section(new int[2] { 0, (sections_all.Count - 1) }, this);
         recalc_lift_force_nvec(this);
 
+        recalc_coefficients();
         recalc_surface_forces(ac, env);
         drag_force_nvec = Vector3.Negate(ac.velocity_local_nvec);
     }
