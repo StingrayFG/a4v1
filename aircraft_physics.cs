@@ -21,6 +21,9 @@ public class aircraft
 
     public Vector3 ac_axis_local_nvec;
     public Vector3 ac_axis_global_nvec;
+    public PolarCrds ac_axis_local;
+    public PolarCrds ac_axis_global;
+
 
     public Vector3 forces_local;
     public Vector3 acceleration_local_vec;

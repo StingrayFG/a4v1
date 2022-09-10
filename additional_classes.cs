@@ -85,10 +85,10 @@ public struct PolarCrds
         this.elevation = elevation;
     }
 
-    public PolarCrds(Vector3 vec)
+    public PolarCrds(Vector3 nvec)
     {
-        azimuth = MathF.Asin(vec.Y / vec.Z);
-        elevation = MathF.Atan(MathF.Sqrt(vec.X * vec.X + vec.Y * vec.Y) / vec.Z);
+        azimuth = MathF.Asin(nvec.Y / nvec.Z);
+        elevation = MathF.Atan(MathF.Sqrt(nvec.X * nvec.X + nvec.Y * nvec.Y) / nvec.Z);
     }
 
     public static PolarCrds operator +(PolarCrds p) => p;
