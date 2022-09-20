@@ -25,14 +25,14 @@ public struct Point3
         Z = vec.Z;
     }
 
-    public Vector3 ConvertToVector3()
-    {
-        return new Vector3(X, Y, Z);
-    }
-
-    public static explicit operator Vector3(Point3 p)
+    public static implicit operator Vector3(Point3 p)
     {
         return new Vector3(p.X, p.Y, p.Z);
+    }
+
+    public static explicit operator Point3(Vector3 vec)
+    {
+        return new Point3(vec);
     }
 
     public static Point3 operator +(Point3 p) => p;
@@ -62,13 +62,16 @@ public struct PolarCrds
 {
     public float azimuth
     { 
-        get { return azimuth;  }
-        set { value %= 360f; } 
-    
+        get => azimuth;  
+        set => azimuth = value % 360f; 
     }
+
     public float elevation 
     { 
-        get { return elevation;  } 
+        get 
+        { 
+            return elevation;  
+        } 
         set 
         { 
             if (MathF.Abs(value) > 90)
@@ -79,10 +82,23 @@ public struct PolarCrds
         } 
     }
 
+    public float eq_roll
+    {
+        get => eq_roll; 
+        set => eq_roll = value % 360f; 
+    }
+
     public PolarCrds(float azimuth, float elevation)
     {
         this.azimuth = azimuth;
         this.elevation = elevation;
+    }
+
+    public PolarCrds(float azimuth, float elevation, float eq_roll)
+    {
+        this.azimuth = azimuth;
+        this.elevation = elevation;
+        this.eq_roll = eq_roll;
     }
 
     public PolarCrds(Vector3 nvec)
@@ -92,13 +108,16 @@ public struct PolarCrds
     }
 
     public static PolarCrds operator +(PolarCrds p) => p;
-    public static PolarCrds operator -(PolarCrds p) => new PolarCrds(-p.azimuth, -p.elevation);
+    public static PolarCrds operator -(PolarCrds p) => new PolarCrds(-p.azimuth, -p.elevation, -p.eq_roll);
 
-    public static PolarCrds operator +(PolarCrds p1, PolarCrds p2) => new PolarCrds(p1.azimuth + p2.azimuth, p1.elevation + p2.elevation);
-    public static PolarCrds operator -(PolarCrds p1, PolarCrds p2)
-
+    public static PolarCrds operator +(PolarCrds p1, PolarCrds p2)
     {
-        return new PolarCrds(p1.azimuth - p2.azimuth, p1.elevation - p2.elevation);
+        return new PolarCrds(p1.azimuth + p2.azimuth, p1.elevation + p2.elevation, p1.eq_roll + p2.eq_roll);
+    }
+
+    public static PolarCrds operator -(PolarCrds p1, PolarCrds p2)
+    {
+        return new PolarCrds(p1.azimuth - p2.azimuth, p1.elevation - p2.elevation, p1.eq_roll - p2.eq_roll);
     }
 
     public Vector3 ConvertToNVec()

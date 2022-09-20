@@ -7,18 +7,21 @@ using System.Numerics;
 
 class aircraft_controls
 {
-    Vector3 activation_coeff;
+    public Vector3 activation_coeff;
 
-    Vector3 c_ring_delta;
+    public PolarCrds cr_polar_delta;
 
-    PolarCrds c_ring_global;
+    public PolarCrds cr_polar_global;
 
-
-    public void get_delta(aircraft ac)
+    public void recalc_delta(PolarCrds ac_polar_global)
     {
-        c_ring_delta.Z = c_ring_global.azimuth - ac.ac_axis_global.azimuth;
-        c_ring_delta.Y = c_ring_global.elevation - ac.ac_axis_global.elevation;
-        c_ring_delta.X = MathF.Atan(c_ring_delta.Z / c_ring_delta.Y) * 180 / MathF.PI - ac.rotation.X;
+        cr_polar_delta = cr_polar_global - ac_polar_global;
     }
+
+    public void recalc_main(aircraft ac)
+    {
+        recalc_delta(ac.ac_polar_global);
+    }
+
 }
 
