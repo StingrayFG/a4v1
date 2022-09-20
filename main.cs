@@ -71,5 +71,8 @@ class Program
         //Console.WriteLine(p2.X.ToString() + " " + p2.Y.ToString() + " " + p2.Z.ToString());
         //Console.WriteLine(vec2.X.ToString() + " " + vec2.Y.ToString() + " " + vec2.Z.ToString());
 
+        Point3 p1 = new Point3(2, 2, 4);
+        Point3 p2 = new Point3(3, 2, 1);
+        Point3 p3 = p1 + p2;
     }
 }
