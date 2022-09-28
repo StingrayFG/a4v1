@@ -9,8 +9,8 @@ using System.Numerics;
 
 public class ad_surface_section
 {
-    public coeff_functions root_functions;
-    public coeff_functions tip_functions;
+    public surf_coeff_functions root_functions;
+    public surf_coeff_functions tip_functions;
 
     public float aoa_base;
     public float aoa_rotated;
