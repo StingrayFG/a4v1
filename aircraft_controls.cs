@@ -70,6 +70,7 @@ class aircraft_controls
     public void recalc_main(aircraft ac)
     {
         recalc_delta(ac.ac_axis_global_polar);
+        set_actions();
     }
 
 }
