@@ -101,11 +101,12 @@ public struct PolarCrds
         this.eq_roll = eq_roll;
     }
 
-    public PolarCrds(Vector3 nvec)
-    {
-        azimuth = MathF.Asin(nvec.Y / nvec.Z);
-        elevation = MathF.Atan(MathF.Sqrt(nvec.X * nvec.X + nvec.Y * nvec.Y) / nvec.Z);
-    }
+    //public PolarCrds(Vector3 rotation)
+    //{
+    //    azimuth = rotation.Z;
+    //    elevation = rotation.Y;
+    //    eq_roll = rotation.X;
+    //}
 
     public static PolarCrds operator +(PolarCrds p) => p;
     public static PolarCrds operator -(PolarCrds p) => new PolarCrds(-p.azimuth, -p.elevation, -p.eq_roll);
@@ -114,13 +115,24 @@ public struct PolarCrds
     {
         return new PolarCrds(p1.azimuth + p2.azimuth, p1.elevation + p2.elevation, p1.eq_roll + p2.eq_roll);
     }
-
     public static PolarCrds operator -(PolarCrds p1, PolarCrds p2)
     {
         return new PolarCrds(p1.azimuth - p2.azimuth, p1.elevation - p2.elevation, p1.eq_roll - p2.eq_roll);
     }
 
-    public Vector3 ConvertToNVec()
+    //public static explicit operator PolarCrds(Vector3 vec)
+    //{
+    //    return new PolarCrds(vec);
+    //}
+
+    public void SetFromRotationVec(Vector3 rotation)
+    {
+        azimuth = rotation.Z;
+        elevation = rotation.Y;
+        eq_roll = rotation.X;
+    }
+
+    public Vector3 ToNormalizedVec()
     {
         return new Vector3(
             MathF.Sin(azimuth / 180 * MathF.PI) * MathF.Cos(elevation), 

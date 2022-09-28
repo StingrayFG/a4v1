@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "0wqtJ2XQpZD4LYAy/wBIzJQH17feJZODP34iD/QYLnkGMqQjiHb1/q1aLUGYB0NJZn5L9bI206muoYXqNR2imQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Stingray_FG\\Documents\\GitHub\\a4v1\\a4v1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Stingray_FG\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.17\\microsoft.netcore.app.host.win-x64.5.0.17.nupkg.sha512",
+    "C:\\Users\\Stingray_FG\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\Stingray_FG\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\Stingray_FG\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

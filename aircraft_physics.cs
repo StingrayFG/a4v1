@@ -21,20 +21,27 @@ public class aircraft
 
     public Vector3 ac_axis_local_nvec;
     public Vector3 ac_axis_global_nvec;
-    public PolarCrds ac_axis_local;
-    public PolarCrds ac_axis_global;
 
+    public PolarCrds ac_axis_local_polar;
+    public PolarCrds ac_axis_global_polar;
 
-    public Vector3 forces_local;
     public Vector3 acceleration_local_vec;
+    public Vector3 acceleration_local_nvec;
+
+    public PolarCrds velocity_local_polar;
+    public PolarCrds velocity_global_polar;
 
     public Vector3 velocity_local_vec;
     public Vector3 velocity_local_nvec;
 
     public Vector3 velocity_global_vec;
     public Vector3 velocity_global_nvec;
+
+    public Vector3 forces_local;
+
+
     public float speed;
-    public Vector3 position;
+    public Point3 position;
 
     public Vector3 moment_of_inertia;
     public Vector3 torque;
@@ -42,7 +49,8 @@ public class aircraft
     public Vector3 angular_velocity;
     public Vector3 rotation;
 
-    public Vector3 gravity_nvec;
+    public Vector3 gravity_local_nvec;
+    public PolarCrds gravity_global_polar = new PolarCrds(0, -90);
 
     public float zfw;
     public float auw;
@@ -51,9 +59,9 @@ public class aircraft
     public float fuel_weight;
     public float fuel_weight_max;
 
-    public Vector3 center_of_mass_zfw;
-    public Vector3 center_of_mass_auw;
-    public Vector3 center_of_mass_ffw;
+    public Point3 center_of_mass_zfw;
+    public Point3 center_of_mass_auw;
+    public Point3 center_of_mass_ffw;
 
     actions_class ac_actions = new actions_class();
 
@@ -123,7 +131,7 @@ public class aircraft
         {
             torque += surf.lift_force * surf.lift_force_nvec * (surf.forces_app_point - center_of_mass_auw);
 
-            torque.X += surf.drag_force * surf.drag_force_nvec.X * (surf.forces_app_point.X - center_of_mass_auw.X);
+            torque += surf.drag_force * surf.drag_force_nvec * (surf.forces_app_point - center_of_mass_auw);
 
             foreach (control_surface c_surf in surf.control_surfaces)
             {
@@ -140,13 +148,17 @@ public class aircraft
         angular_velocity += angular_acceleration * physics.Ts;
         rotation += angular_velocity * physics.Ts;
 
-        rotation.X = rotation.X % 360;
-        rotation.Y = rotation.Y % 360;
-        rotation.Z = rotation.Z % 360;
+        //rotation.X = rotation.X % 360;
+        //rotation.Y = rotation.Y % 360;
+        //rotation.Z = rotation.Z % 360;
 
-        ac_axis_global_nvec.X = MathF.Sin((rotation.Z + 90) / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
-        ac_axis_global_nvec.Y = MathF.Sin(rotation.Z / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
-        ac_axis_global_nvec.Z = MathF.Sin(rotation.Y / 180 * MathF.PI);
+        ac_axis_global_polar.SetFromRotationVec(rotation);
+
+        //ac_axis_global_nvec.X = MathF.Sin((rotation.Z + 90) / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
+        //ac_axis_global_nvec.Y = MathF.Sin(rotation.Z / 180 * MathF.PI) * MathF.Cos(rotation.Y / 180 * MathF.PI);
+        //ac_axis_global_nvec.Z = MathF.Sin(rotation.Y / 180 * MathF.PI);
+
+        ac_axis_global_nvec = ac_axis_global_polar.ToNormalizedVec();
     }
 
     public void recalc_forces()
@@ -165,8 +177,10 @@ public class aircraft
                 }
             }
 
+            gravity_local_nvec = (ac_axis_global_polar - gravity_global_polar).ToNormalizedVec();
+
             forces_local += engine.thrust * engine.thrust_nvec;
-            forces_local += gravity_nvec * physics.g * auw;
+            forces_local += gravity_local_nvec * physics.g * auw;
         }
     }
 
@@ -175,7 +189,9 @@ public class aircraft
         acceleration_local_vec += forces_local / auw;
         velocity_local_vec += acceleration_local_vec * physics.Ts;
         speed = velocity_local_vec.Length();
-        velocity_local_nvec = velocity_local_vec / speed;
+
+        //velocity_local_nvec = velocity_local_vec / speed;
+
 
         //velocity_global_nvec.X = MathF.Cos(MathF.Asin(ac_axis_global_nvec.Z / 180 * MathF.PI) + MathF.Asin(velocity_local_nvec.Z / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Z / 180 * MathF.PI)) * 
         //    MathF.Cos(MathF.Asin(velocity_local_nvec.Y / 180 * MathF.PI) - MathF.Asin(ac_axis_local_nvec.Y / 180 * MathF.PI)); ;
@@ -188,11 +204,14 @@ public class aircraft
         ////velocity_global_nvec.Y = MathF.Asin(rotation.Z + (MathF.Cos(velocity_local_nvec.X / velocity_local_nvec.Z / 180 * MathF.PI) * ((MathF.Round((rotation.Z - 180) / 360) * -2) + 1)));
         ////velocity_global_nvec.Z = rotation.Y + MathF.Asin(velocity_local_nvec.Z);
 
-        velocity_global_nvec.X = MathF.Sin((rotation.Z + MathF.Asin(velocity_local_nvec.Y) + 90) / 180 * MathF.PI) * MathF.Cos(rotation.Y);
-        velocity_global_nvec.Y = MathF.Sin((rotation.Z + MathF.Asin(velocity_local_nvec.Y)) / 180 * MathF.PI) * MathF.Cos(rotation.Y);
-        velocity_global_nvec.Z = MathF.Sin((rotation.Y + MathF.Asin(velocity_local_nvec.Z)) / 180 * MathF.PI);
+        //velocity_global_nvec.X = MathF.Sin((rotation.Z + MathF.Asin(velocity_local_nvec.Y) + 90) / 180 * MathF.PI) * MathF.Cos(rotation.Y);
+        //velocity_global_nvec.Y = MathF.Sin((rotation.Z + MathF.Asin(velocity_local_nvec.Y)) / 180 * MathF.PI) * MathF.Cos(rotation.Y);
+        //velocity_global_nvec.Z = MathF.Sin((rotation.Y + MathF.Asin(velocity_local_nvec.Z)) / 180 * MathF.PI);
 
-        velocity_global_nvec = get_rotated_vector(velocity_global_nvec, ac_axis_global_nvec, -rotation.X);
+        //velocity_global_nvec = get_rotated_vector(velocity_global_nvec, ac_axis_global_nvec, -rotation.X);
+
+        velocity_global_polar = ac_axis_global_polar + (velocity_local_polar - ac_axis_local_polar);
+        velocity_global_nvec = velocity_global_polar.ToNormalizedVec();
 
         velocity_global_vec = velocity_global_nvec * speed;
 

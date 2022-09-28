@@ -1,0 +1,16 @@
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\a4v1.exe
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\a4v1.deps.json
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\a4v1.runtimeconfig.json
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\a4v1.runtimeconfig.dev.json
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\a4v1.dll
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\ref\a4v1.dll
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\bin\Debug\net5.0\a4v1.pdb
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.csproj.AssemblyReference.cache
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.AssemblyInfoInputs.cache
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.AssemblyInfo.cs
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.csproj.CoreCompileInputs.cache
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.dll
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\ref\a4v1.dll
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.pdb
+C:\Users\Stingray_FG\Documents\GitHub\a4v1\obj\Debug\net5.0\a4v1.genruntimeconfig.cache

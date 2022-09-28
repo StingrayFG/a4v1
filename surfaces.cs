@@ -7,35 +7,10 @@ using System.Numerics;
 
 
 
-public class actions_class
-{
-    public Dictionary<string, float> values = new Dictionary<string, float>()
-    {
-        {"none", 0f },
-        {"roll", 0f },
-        {"pitch", 0f },
-        {"yaw", 0f },
-        {"flaps", 0f },
-        {"slats", 0f },
-        {"airbrake", 0f }
-    };
-
-    public Dictionary<string, float> true_angles = new Dictionary<string, float>()
-    {
-        {"none", 0f },
-        {"roll", 0f },
-        {"pitch", 0f },
-        {"yaw", 0f },
-        {"flaps", 0f },
-        {"slats", 0f },
-        {"airbrake", 0f }
-    };
-}
-
 public class ad_surface_section
 {
-    public coefficients_function root_functions;
-    public coefficients_function tip_functions;
+    public coeff_functions root_functions;
+    public coeff_functions tip_functions;
 
     public float aoa_base;
     public float aoa_rotated;
@@ -333,9 +308,6 @@ public class aerodynamic_surface: surface
     public List<ad_surface_section> sections_all = new List<ad_surface_section>();
 
     public List<control_surface> control_surfaces = new List<control_surface>();
-
-    public coefficients_function root_functions;
-    public coefficients_function tip_functions;
 
     public Vector3 one_axis_nvec;
 

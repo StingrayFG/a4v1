@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-public interface coefficients_function
+public interface surf_coeff_functions
 {
     float lc_get(float aoa_true);
     float dc_get(float aoa_true);
 }
 
 
-public class lc_dc_stock: coefficients_function
+public class lc_dc_stock: surf_coeff_functions
 {
     public float lc_get(float aoa_true)
     {
