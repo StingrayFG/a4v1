@@ -77,8 +77,6 @@ public class surface
     public float lift_force;
     public float drag_force;
 
-    //public float aoa_avg;
-
     public Vector3 forces_app_point;
     public Vector3 chord_center_point;
 
